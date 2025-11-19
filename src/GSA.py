@@ -167,9 +167,9 @@ else:
 
         # Output File 7: Average Gadget Quality (and count of quality functional gadgets)
         file_7_lines = ["Package Variant,Quality ROP Gadgets,Average ROP Gadget Quality,Quality JOP Gadgets,Average JOP Gadget Quality,Quality COP Gadgets,Average COP Gadget Quality" + LINE_SEP]
-        orig_quality = original.name + "," + str(len(original.ROPGadgets)) + "," + str(original.averageROPQuality)
-        orig_quality += "," + str(len(original.JOPGadgets)) + "," + str(original.averageJOPQuality)
-        orig_quality += "," + str(len(original.COPGadgets)) + "," + str(original.averageCOPQuality) + LINE_SEP
+        orig_quality = f"{original.name},{len(original.ROPGadgets)},{original.averageROPQuality:.3f},"
+        orig_quality += f"{len(original.JOPGadgets)},{original.averageJOPQuality:.3f},"
+        orig_quality += f"{len(original.COPGadgets)},{original.averageCOPQuality:.3f}" + LINE_SEP
         file_7_lines.append(orig_quality)
 
         # Output File 8: Suspected function names containing introduced special purpose gadgets.
@@ -284,11 +284,11 @@ else:
 
             # Output file 7 variant lines
             stat_quality = variant.name + "," + str(len(variant.ROPGadgets)) + " (" + str(stat.keptQualityROPCountDiff) + "),"
-            stat_quality += str(variant.averageROPQuality) + " (" + str(stat.averageROPQualityDiff) + "),"
+            stat_quality += f"{variant.averageROPQuality:.3f} ({stat.averageROPQualityDiff:.3f}),"
             stat_quality += str(len(variant.JOPGadgets)) + " (" + str(stat.keptQualityJOPCountDiff) + "),"
-            stat_quality += str(variant.averageJOPQuality) + " (" + str(stat.averageJOPQualityDiff) + "),"
+            stat_quality += f"{variant.averageJOPQuality:.3f} ({stat.averageJOPQualityDiff:.3f}),"
             stat_quality += str(len(variant.COPGadgets)) + " (" + str(stat.keptQualityCOPCountDiff) + "),"
-            stat_quality += str(variant.averageCOPQuality) + " (" + str(stat.averageCOPQualityDiff) + ")" + LINE_SEP
+            stat_quality += f"{variant.averageCOPQuality:.3f} ({stat.averageCOPQualityDiff:.3f}){LINE_SEP}"
             file_7_lines.append(stat_quality)
 
             # Output file 8 variant lines
