@@ -25,6 +25,20 @@ from static_analyzer.GadgetStats import GadgetStats
 
 LINE_SEP= "\n" # line separator
 
+def format(x: float | int, difference: bool = False) -> str:
+    if not difference:
+        if isinstance(x, float):
+            return f"{x:.3f}"
+        else:
+            return str(x)
+
+    sign = "+" if x > 0 else ""
+
+    if isinstance(x, float):
+        return f"({sign}{x:.3f})"
+    else:
+        return f"({sign}{x})"
+
 # Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("original", help="Original program binary or directory of binaries.", type=str)
@@ -166,10 +180,10 @@ else:
         file_6_lines = ["Package Variant,Gadget Locality" + LINE_SEP]
 
         # Output File 7: Average Gadget Quality (and count of quality functional gadgets)
-        file_7_lines = ["Package Variant,Quality ROP Gadgets,Average ROP Gadget Quality,Quality JOP Gadgets,Average JOP Gadget Quality,Quality COP Gadgets,Average COP Gadget Quality" + LINE_SEP]
-        orig_quality = f"{original.name},{len(original.ROPGadgets)},{original.averageROPQuality:.3f},"
-        orig_quality += f"{len(original.JOPGadgets)},{original.averageJOPQuality:.3f},"
-        orig_quality += f"{len(original.COPGadgets)},{original.averageCOPQuality:.3f}" + LINE_SEP
+        file_7_lines = ["Variant,Number of Quality ROP Gadgets,Average ROP Gadget Quality,Number of Quality JOP Gadgets,Average JOP Gadget Quality,Number of Quality COP Gadgets,Average COP Gadget Quality" + LINE_SEP]
+        orig_quality = f"{original.name},{format(len(original.ROPGadgets))},{format(original.averageROPQuality)},"
+        orig_quality += f"{format(len(original.JOPGadgets))},{format(original.averageJOPQuality)},"
+        orig_quality += f"{format(len(original.COPGadgets))},{format(original.averageCOPQuality)}" + LINE_SEP
         file_7_lines.append(orig_quality)
 
         # Output File 8: Suspected function names containing introduced special purpose gadgets.
@@ -283,12 +297,12 @@ else:
                 file_6_lines.append(stat_locality)
 
             # Output file 7 variant lines
-            stat_quality = variant.name + "," + str(len(variant.ROPGadgets)) + " (" + str(stat.keptQualityROPCountDiff) + "),"
-            stat_quality += f"{variant.averageROPQuality:.3f} ({stat.averageROPQualityDiff:.3f}),"
-            stat_quality += str(len(variant.JOPGadgets)) + " (" + str(stat.keptQualityJOPCountDiff) + "),"
-            stat_quality += f"{variant.averageJOPQuality:.3f} ({stat.averageJOPQualityDiff:.3f}),"
-            stat_quality += str(len(variant.COPGadgets)) + " (" + str(stat.keptQualityCOPCountDiff) + "),"
-            stat_quality += f"{variant.averageCOPQuality:.3f} ({stat.averageCOPQualityDiff:.3f}){LINE_SEP}"
+            stat_quality = f"{variant.name},{format(len(variant.ROPGadgets))} {format(stat.keptQualityROPCountDiff, difference=True)},"
+            stat_quality += f"{format(variant.averageROPQuality)} {format(stat.averageROPQualityDiff, difference=True)},"
+            stat_quality += f"{format(len(variant.JOPGadgets))} {format(stat.keptQualityJOPCountDiff, difference=True)},"
+            stat_quality += f"{format(variant.averageJOPQuality)} {format(stat.averageJOPQualityDiff, difference=True)},"
+            stat_quality += f"{format(len(variant.COPGadgets))} {format(stat.keptQualityCOPCountDiff, difference=True)},"
+            stat_quality += f"{format(variant.averageCOPQuality)} {format(stat.averageCOPQualityDiff, difference=True)}{LINE_SEP}"
             file_7_lines.append(stat_quality)
 
             # Output file 8 variant lines
