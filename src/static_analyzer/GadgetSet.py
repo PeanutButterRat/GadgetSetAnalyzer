@@ -206,6 +206,8 @@ class GadgetSet(object):
                     line == "" or \
                     line.startswith("Unique gadgets found"):
                 continue
+            elif line == "[Error] Binary format not supported":
+                raise RuntimeError(f"GSA cannot analyze this type of file ({filepath})")
             else:
                 self.allGadgets.append(Gadget(filepath, line))
 
@@ -218,7 +220,7 @@ class GadgetSet(object):
         :return: Output from the ROPgadget command as a standard string, None if the data was not collected as expected.
         """
 
-        sub = subprocess.Popen("ROPgadget --binary " + filepath + " " + flags, shell=True, stdout=subprocess.PIPE)
+        sub = subprocess.Popen("ROPgadget --binary '" + filepath + "' " + flags, shell=True, stdout=subprocess.PIPE)
         subprocess_return = sub.stdout.read()
         return subprocess_return.decode("utf-8")
 
