@@ -271,15 +271,15 @@ class GadgetStats(object):
             self.gadgetLocality = None
 
         # Calculate gadget quality
-        self.keptQualityROPCountDiff = len(original.ROPGadgets) - len(variant.ROPGadgets)
-        self.keptQualityJOPCountDiff = len(original.JOPGadgets) - len(variant.JOPGadgets)
-        self.keptQualityCOPCountDiff = len(original.COPGadgets) - len(variant.COPGadgets)
-        self.total_functional_count_diff = original.total_functional_gadgets - variant.total_functional_gadgets
+        self.keptQualityROPCountDiff = len(variant.ROPGadgets) - len(original.ROPGadgets)
+        self.keptQualityJOPCountDiff = len(variant.JOPGadgets) - len(original.JOPGadgets)
+        self.keptQualityCOPCountDiff = len(variant.COPGadgets) - len(original.COPGadgets)
+        self.total_functional_count_diff = variant.total_functional_gadgets - original.total_functional_gadgets
 
-        self.averageROPQualityDiff = original.averageROPQuality - variant.averageROPQuality
-        self.averageJOPQualityDiff = original.averageJOPQuality - variant.averageJOPQuality
-        self.averageCOPQualityDiff = original.averageCOPQuality - variant.averageCOPQuality
-        self.total_average_quality_diff = original.average_functional_quality - variant.average_functional_quality
+        self.averageROPQualityDiff = variant.averageROPQuality - original.averageROPQuality
+        self.averageJOPQualityDiff = variant.averageJOPQuality - original.averageJOPQuality
+        self.averageCOPQualityDiff = variant.averageCOPQuality - original.averageCOPQuality
+        self.total_average_quality_diff = variant.average_functional_quality - original.average_functional_quality
 
         if output_console:
             self.printStats(output_locality)
