@@ -21,12 +21,11 @@ class GadgetSet(object):
     of gadgets present in the binary's encoding.
     """
 
-    def __init__(self, name, filepath, createCFG):
+    def __init__(self, name, filepath):
         """
         GadgetSet constructor
         :param str name: Name for the gadget set
         :param str filepath: Path to the file on disk.
-        :param boolean createCFG: whether or not to use angr to create a CFG.
         """
 
         # Determine how many binaries will make up the gadget set
@@ -46,17 +45,6 @@ class GadgetSet(object):
         self.name = name
         self.cnt_rejected = 0
         self.cnt_duplicate = 0
-
-        # Init the CFG with angr for finding functions
-        if createCFG and len(self.binaries) == 1:
-            try:
-                proj = angr.Project(filepath, main_opts={'base_addr': 0}, load_options={'auto_load_libs': False})
-                self.cfg = proj.analyses.CFG()
-                self.cfg.normalize()
-            except Exception as e:
-                print(str(e))
-        else:
-            self.cfg = None
 
         # Initialize functional gadget type lists
         self.allGadgets = []
@@ -321,18 +309,6 @@ class GadgetSet(object):
                 return False
         collection.append(gadget)
         return True
-
-    def getFunction(self, rop_addr):
-        rop_addr = int(rop_addr, 16)
-        try:
-            rop_function = self.cfg.functions.floor_func(rop_addr).name
-        except Exception as e:
-            print(str(e))
-            return
-        if rop_function:
-            return rop_function
-        else:
-            return None
 
     def classify_gadget(self, gadget):
         """
