@@ -14,9 +14,10 @@ GSA uses the common tool <ROPgadget> under the hood to obtain a gadget catalog. 
 # Standard Library Imports
 import argparse
 import sys
+from datetime import datetime
+import os
 
 # Local Imports
-from utility import *
 from static_analyzer.GadgetSet import GadgetSet
 from static_analyzer.GadgetStats import GadgetStats
 
@@ -35,6 +36,14 @@ def format(x: float | int, difference: bool = False) -> str:
         return f"({sign}{x:.3f})"
     else:
         return f"({sign}{x})"
+
+def create_output_directory(prefix, timestamp=True):
+    if timestamp:
+        directory_name = prefix + str(datetime.now())
+    else:
+        directory_name = prefix
+    os.makedirs(directory_name)
+    return directory_name
 
 # Parse Arguments
 parser = argparse.ArgumentParser()

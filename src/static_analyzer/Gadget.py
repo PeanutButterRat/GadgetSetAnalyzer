@@ -2,11 +2,6 @@
 Gadget class
 """
 
-# Standard Library Imports
-
-# Third Party Imports
-
-# Local Imports
 from static_analyzer.Instruction import Instruction
 
 
