@@ -17,12 +17,11 @@ class GadgetStats(object):
     gadget set of its transformed variant.
     """
 
-    def __init__(self, original, variant, output_locality):
+    def __init__(self, original, variant):
         """
         GadgetStats constructor
         :param GadgetSet original: Gadget Set from the original package
         :param GadgetSet variant: Gadget Set from the variant package
-        :param boolean output_locality: Indicates whether or not to calculate gadget locality, which is CPU intensive
         """
         self.original = original
         self.variant = variant
@@ -261,14 +260,6 @@ class GadgetStats(object):
         self.practical_ASLR_ROP_exp_diff = original.practical_ASLR_ROP_expressivity - variant.practical_ASLR_ROP_expressivity
         self.turing_complete_ROP_exp_diff = original.turing_complete_ROP_expressivity - variant.turing_complete_ROP_expressivity
 
-        # Calculate gadget locality
-        if output_locality:
-            local_gadgets = GadgetStats.findEqualGadgets(original.allGadgets, variant.allGadgets)
-            unique_all_gadgets = len(set(repr(gadget) for gadget in variant.allGadgets))
-            self.gadgetLocality = local_gadgets / unique_all_gadgets
-        else:
-            self.gadgetLocality = None
-
         # Calculate gadget quality
         self.keptQualityROPCountDiff = len(variant.ROPGadgets) - len(original.ROPGadgets)
         self.keptQualityJOPCountDiff = len(variant.JOPGadgets) - len(original.JOPGadgets)
@@ -279,99 +270,6 @@ class GadgetStats(object):
         self.averageJOPQualityDiff = variant.averageJOPQuality - original.averageJOPQuality
         self.averageCOPQualityDiff = variant.averageCOPQuality - original.averageCOPQuality
         self.total_average_quality_diff = variant.average_functional_quality - original.average_functional_quality
-
-    def printStats(self, output_locality):
-        rate_format = "{:.1%}"
-        print("======================================================================")
-        print("Gadget Stats for " + self.name)
-        print("======================================================================")
-        print("Total Unique Gadgets:")
-        print("Count Difference: "  + str(self.totalUniqueCountDiff))
-        print("Reduction Rate: "    + rate_format.format(self.totalUniqueCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.totalUniqueIntroductionRate))
-        print("======================================================================")
-        print("ROP Gadgets:")
-        print("Count Difference: " + str(self.ROPCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.ROPCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.ROPIntroductionRate))
-        print("======================================================================")
-        print("JOP Gadgets:")
-        print("Count Difference: " + str(self.JOPCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.JOPCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.JOPIntroductionRate))
-        print("======================================================================")
-        print("COP Gadgets:")
-        print("Count Difference: " + str(self.COPCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPIntroductionRate))
-        print("======================================================================")
-        print("Syscall Gadgets:")
-        print("Count Difference: " + str(self.SysCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.SysCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.SysIntroductionRate))
-        print("======================================================================")
-        print("JOP Dispatcher Gadgets:")
-        print("Count Difference: " + str(self.JOPDispatchersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.JOPDispatchersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.JOPDispatchersIntroductionRate))
-        print("======================================================================")
-        print("JOP Data Loader Gadgets:")
-        print("Count Difference: " + str(self.JOPDataLoadersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.JOPDataLoadersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.JOPDataLoadersIntroductionRate))
-        print("======================================================================")
-        print("JOP Initializer Gadgets:")
-        print("Count Difference: " + str(self.JOPInitializersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.JOPInitializersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.JOPInitializersIntroductionRate))
-        print("======================================================================")
-        print("JOP Trampoline Gadgets:")
-        print("Count Difference: " + str(self.JOPTrampolinesCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.JOPTrampolinesCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.JOPTrampolinesIntroductionRate))
-        print("======================================================================")
-        print("COP Dispatcher Gadgets:")
-        print("Count Difference: " + str(self.COPDispatchersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPDispatchersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPDispatchersIntroductionRate))
-        print("======================================================================")
-        print("COP Data Loader Gadgets:")
-        print("Count Difference: " + str(self.COPDataLoadersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPDataLoadersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPDataLoadersIntroductionRate))
-        print("======================================================================")
-        print("COP Initializer Gadgets:")
-        print("Count Difference: " + str(self.COPInitializersCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPInitializersCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPInitializersIntroductionRate))
-        print("======================================================================")
-        print("COP Strong Trampoline Gadgets:")
-        print("Count Difference: " + str(self.COPStrongTrampolinesCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPStrongTrampolinesCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPStrongTrampolinesIntroductionRate))
-        print("======================================================================")
-        print("COP Intrastack Pivot Gadgets:")
-        print("Count Difference: " + str(self.COPIntrastackPivotsCountDiff))
-        print("Reduction Rate: " + rate_format.format(self.COPIntrastackPivotsCountReduction))
-        print("Introduction Rate: " + rate_format.format(self.COPIntrastackPivotsIntroductionRate))
-        print("======================================================================")
-        print("ROP Gadget Quality:")
-        print("ROP Count Difference: " + str(self.keptQualityROPCountDiff))
-        print("ROP Average Quality Difference: " + str(self.averageROPQualityDiff))
-        print("JOP Gadget Quality:")
-        print("JOP Count Difference: " + str(self.keptQualityJOPCountDiff))
-        print("JOP Average Quality Difference: " + str(self.averageJOPQualityDiff))
-        print("COP Gadget Quality:")
-        print("COP Count Difference: " + str(self.keptQualityCOPCountDiff))
-        print("COP Average Quality Difference: " + str(self.averageCOPQualityDiff))
-        print("======================================================================")
-        print("ROP Expressivity:")
-        print("Practical ROP Exploit Difference: " + str(self.practical_ROP_exp_diff))
-        print("Practical ASLR-Proof ROP Exploit Difference: " + str(self.practical_ASLR_ROP_exp_diff))
-        print("Simple Turing Complete ROP Exploit Difference: " + str(self.turing_complete_ROP_exp_diff))
-        print("======================================================================")
-        if output_locality:
-            print("Gadget Locality for all gadgets: " + rate_format.format(self.gadgetLocality))
 
 
     @staticmethod

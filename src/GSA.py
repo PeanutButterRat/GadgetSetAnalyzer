@@ -88,7 +88,7 @@ for key in variants_dict.keys():
     print("Analyzing variant package [" + key + "] located at: " + filepath)
 
     variant = GadgetSet(key, filepath, False)
-    stat = GadgetStats(original, variant, False)
+    stat = GadgetStats(original, variant)
 
     # Output file 7 variant lines
     stat_quality = f"{variant.name},{format(len(variant.ROPGadgets))} {format(stat.keptQualityROPCountDiff, difference=True)},"
