@@ -60,7 +60,7 @@ print("Starting Gadget Set Analyzer")
 
 # Create Gadget sets for original
 print("Analyzing original package [" + args.original_name + "] located at: " + args.original)
-original = GadgetSet(args.original_name, args.original, False, False)
+original = GadgetSet(args.original_name, args.original, False)
 
 try:
     if args.result_folder_name is None:
@@ -87,8 +87,8 @@ for key in variants_dict.keys():
     filepath = variants_dict.get(key)
     print("Analyzing variant package [" + key + "] located at: " + filepath)
 
-    variant = GadgetSet(key, filepath, False, False)
-    stat = GadgetStats(original, variant, False, False)
+    variant = GadgetSet(key, filepath, False)
+    stat = GadgetStats(original, variant, False)
 
     # Output file 7 variant lines
     stat_quality = f"{variant.name},{format(len(variant.ROPGadgets))} {format(stat.keptQualityROPCountDiff, difference=True)},"

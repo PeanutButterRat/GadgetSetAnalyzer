@@ -17,12 +17,11 @@ class GadgetStats(object):
     gadget set of its transformed variant.
     """
 
-    def __init__(self, original, variant, output_console, output_locality):
+    def __init__(self, original, variant, output_locality):
         """
         GadgetStats constructor
         :param GadgetSet original: Gadget Set from the original package
         :param GadgetSet variant: Gadget Set from the variant package
-        :param boolean output_console: Indicates whether or not to print info when computed
         :param boolean output_locality: Indicates whether or not to calculate gadget locality, which is CPU intensive
         """
         self.original = original
@@ -280,9 +279,6 @@ class GadgetStats(object):
         self.averageJOPQualityDiff = variant.averageJOPQuality - original.averageJOPQuality
         self.averageCOPQualityDiff = variant.averageCOPQuality - original.averageCOPQuality
         self.total_average_quality_diff = variant.average_functional_quality - original.average_functional_quality
-
-        if output_console:
-            self.printStats(output_locality)
 
     def printStats(self, output_locality):
         rate_format = "{:.1%}"

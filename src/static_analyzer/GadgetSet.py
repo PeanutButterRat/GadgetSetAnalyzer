@@ -21,13 +21,12 @@ class GadgetSet(object):
     of gadgets present in the binary's encoding.
     """
 
-    def __init__(self, name, filepath, createCFG, output_console):
+    def __init__(self, name, filepath, createCFG):
         """
         GadgetSet constructor
         :param str name: Name for the gadget set
         :param str filepath: Path to the file on disk.
         :param boolean createCFG: whether or not to use angr to create a CFG.
-        :param boolean output_console: Indicates whether or not to print info when computed
         """
 
         # Determine how many binaries will make up the gadget set
@@ -160,9 +159,6 @@ class GadgetSet(object):
         self.practical_ROP_expressivity = sum(self.practical_ROP)
         self.practical_ASLR_ROP_expressivity = sum(self.practical_ASLR_ROP)
         self.turing_complete_ROP_expressivity = sum(self.turing_complete_ROP)
-
-        if output_console:
-            self.print_stats()
 
     def print_stats(self):
         print(" Gadget Set Stats for " + self.name)
