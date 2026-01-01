@@ -37,26 +37,12 @@ class GadgetSet(object):
                     self.binaries.append(full_fp)
 
         self.name = name
-        self.cnt_rejected = 0
-        self.cnt_duplicate = 0
 
         # Initialize functional gadget type lists
         self.allGadgets = []
         self.ROPGadgets = []
         self.JOPGadgets = []
         self.COPGadgets = []
-
-        # Initialize special purpose gadget type lists
-        self.SyscallGadgets = []
-        self.JOPDispatchers = []
-        self.JOPDataLoaders = []
-        self.JOPInitializers = []
-        self.JOPTrampolines = []
-        self.COPDispatchers = []
-        self.COPStrongTrampolines = []
-        self.COPIntrastackPivots = []
-        self.COPDataLoaders = []
-        self.COPInitializers = []
 
         # Initialize total and average quality scores
         self.total_ROP_score = 0.0
@@ -136,12 +122,21 @@ class GadgetSet(object):
         # 11) Syscall gadgets that end in an interrupt handler that is not 0x80 (ROPgadget should not include these)
         # 12) Gadgets that create value in the first instruction only to overwrite that value before the GPI
         # 13) Gadgets that contain intermediate static calls
-        if gadget.is_gpi_only() or gadget.is_useless_op() or gadget.is_invalid_branch() or \
-           gadget.creates_unusable_value() or gadget.has_invalid_ret_offset() or gadget.contains_unusable_op() or \
-           gadget.contains_intermediate_GPI() or gadget.clobbers_stack_pointer() or \
-           gadget.is_rip_relative_indirect_branch() or gadget.clobbers_indirect_target() or \
-           gadget.has_invalid_int_handler() or gadget.clobbers_created_value() or gadget.contains_static_call():
-            self.cnt_rejected += 1
+        if any(check() for check in (
+            gadget.is_gpi_only,
+            gadget.is_useless_op,
+            gadget.is_invalid_branch,
+            gadget.creates_unusable_value,
+            gadget.has_invalid_ret_offset,
+            gadget.contains_unusable_op,
+            gadget.contains_intermediate_GPI,
+            gadget.clobbers_stack_pointer,
+            gadget.is_rip_relative_indirect_branch,
+            gadget.clobbers_indirect_target,
+            gadget.has_invalid_int_handler,
+            gadget.clobbers_created_value,
+            gadget.contains_static_call,
+        )):
             return
 
         # Step 2: Sort the gadget by type. Gadget type determined by GPI and secondary check for S.P. gadgets. Scoring
@@ -162,56 +157,45 @@ class GadgetSet(object):
 
                 self.total_ROP_score += gadget.score
 
-        elif gpi.startswith("jmp"):
-            if gadget.is_JOP_COP_dispatcher():
-                self.add_if_unique(gadget, self.JOPDispatchers)
-            elif gadget.is_JOP_COP_dataloader():
-                self.add_if_unique(gadget, self.JOPDataLoaders)
-            elif gadget.is_JOP_initializer():
-                self.add_if_unique(gadget, self.JOPInitializers)
-            elif gadget.is_JOP_trampoline():
-                self.add_if_unique(gadget, self.JOPTrampolines)
-            else:
-                if self.add_if_unique(gadget, self.JOPGadgets):
-                    # Determine score, first checking JOP-specific side constraints
-                    gadget.check_branch_target_of_operation()  # increase score if branch register is target of ops
+        elif gpi.startswith("jmp") and not any(check() for check in (
+            gadget.is_JOP_COP_dispatcher,
+            gadget.is_JOP_COP_dataloader,
+            gadget.is_JOP_initializer,
+            gadget.is_JOP_trampoline,
+        )):
+            if self.add_if_unique(gadget, self.JOPGadgets):
+                # Determine score, first checking JOP-specific side constraints
+                gadget.check_branch_target_of_operation()  # increase score if branch register is target of ops
 
-                    # Next check general side-constraints
-                    gadget.check_contains_conditional_op()  # increase score if gadget contains conditional operations
-                    gadget.check_register_ops()  # increases score for ops on value and bystander register
-                    gadget.check_memory_writes()  # increases score for each memory write in the gadget
+                # Next check general side-constraints
+                gadget.check_contains_conditional_op()  # increase score if gadget contains conditional operations
+                gadget.check_register_ops()  # increases score for ops on value and bystander register
+                gadget.check_memory_writes()  # increases score for each memory write in the gadget
 
-                    self.total_JOP_score += gadget.score
+                self.total_JOP_score += gadget.score
 
-        elif gpi.startswith("call"):
-            if gadget.is_JOP_COP_dispatcher():
-                self.add_if_unique(gadget, self.COPDispatchers)
-            elif gadget.is_JOP_COP_dataloader():
-                self.add_if_unique(gadget, self.COPDataLoaders)
-            elif gadget.is_COP_initializer():
-                self.add_if_unique(gadget, self.COPInitializers)
-            elif gadget.is_COP_strong_trampoline():
-                self.add_if_unique(gadget, self.COPStrongTrampolines)
-            elif gadget.is_COP_intrastack_pivot():
-                self.add_if_unique(gadget, self.COPIntrastackPivots)
-            else:
-                if self.add_if_unique(gadget, self.COPGadgets):
-                    # Determine score, first checking COP-specific side constraints
-                    gadget.check_branch_target_of_operation()  # increase score if branch register is target of ops
+        elif gpi.startswith("call") and not any(check() for check in (
+            gadget.is_JOP_COP_dispatcher,
+            gadget.is_JOP_COP_dataloader,
+            gadget.is_COP_initializer,
+            gadget.is_COP_strong_trampoline,
+            gadget.is_COP_intrastack_pivot,
+        )):
+            if self.add_if_unique(gadget, self.COPGadgets):
+                # Determine score, first checking COP-specific side constraints
+                gadget.check_branch_target_of_operation()  # increase score if branch register is target of ops
 
-                    # Next check general side-constraints
-                    gadget.check_contains_conditional_op()  # increase score if gadget contains conditional operations
-                    gadget.check_register_ops()  # increases score for ops on value and bystander register
-                    gadget.check_memory_writes()  # increases score for each memory write in the gadget
+                # Next check general side-constraints
+                gadget.check_contains_conditional_op()  # increase score if gadget contains conditional operations
+                gadget.check_register_ops()  # increases score for ops on value and bystander register
+                gadget.check_memory_writes()  # increases score for each memory write in the gadget
 
-                    self.total_COP_score += gadget.score
-        else:
-            self.add_if_unique(gadget, self.SyscallGadgets)
+                self.total_COP_score += gadget.score
 
     def add_if_unique(self, gadget, collection):
         for rhs in collection:
             if gadget.is_duplicate(rhs):
-                self.cnt_duplicate += 1
                 return False
+
         collection.append(gadget)
         return True
