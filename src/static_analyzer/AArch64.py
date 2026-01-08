@@ -61,6 +61,9 @@ class ArmInstruction(object):
     def is_data_store(self):
         return self.opcode.startswith("st")
 
+    def is_data_load(self):
+        return self.opcode.startswith("ld")
+
     def is_conditional_data_move(self):
         # Conditional instructions that set another register's value based on another register's value (value is register dependent).
         return self.opcode in {"csel", "cinc", "csinc", "cinv", "csinv", "cneg", "csneg"}
@@ -109,6 +112,7 @@ class ArmGadget(object):
         # Category-specific scoring.
         if self.gpi == "ret":
             self.gadget_type = GadgetType.ROP
+            self.check_stack_pointer_operations()
         elif self.gpi in ["br", "b"]:
             self.gadget_type = GadgetType.JOP
         elif self.gpi == "blr":
@@ -150,6 +154,21 @@ class ArmGadget(object):
         for instruction in self.instructions[:-1]:
             if instruction.is_data_store():
                 self.score += 1.0
+
+    def check_stack_pointer_operations(self):
+        for instruction in self.instructions[:-1]:
+            if instruction.get_destination_register() != "sp":
+                continue
+            elif instruction.is_data_move() or instruction.is_data_load() or instruction.is_conditional_data_move():
+                self.score += 4.0
+            elif instruction.is_shift_or_rotate():
+                self.score += 3.0
+            else:
+                self.score += 2.0
+
+            # Note: this is missing one scoring critiera: (+1.0) Gadget has intermediate instruction that pops stack value into RSP/ESP
+            # This is because there is no "pop" instruction in Aarch64, any pop would have to be implemented with a series of
+            # other instructions.
 
     def is_gpi_only(self):
         return len(self.instructions) == 1
