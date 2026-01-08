@@ -20,6 +20,7 @@ import os
 # Local Imports
 from static_analyzer.GadgetSet import GadgetSet
 from static_analyzer.GadgetStats import GadgetStats
+from static_analyzer.AArch64 import ArmGadgetSet
 
 LINE_SEP= "\n" # line separator
 
@@ -55,6 +56,7 @@ parser.add_argument("--variants",
                     type=str)
 parser.add_argument("--result_folder_name", help="Optionally specifies a specific output file name for the results folder.", action="store", type=str)
 parser.add_argument("--original_name", help="Optionally specifies a specific name for the 'original' binary.", action="store", type=str, default="Original")
+parser.add_argument("--architecture", type=str, default="x86-64", help="The architecture to analyze (x86-64 or aarch64)")
 args = parser.parse_args()
 
 variants_dict = {}
@@ -65,11 +67,20 @@ for variant in args.variants:
         exit(1)
     variants_dict[parts[0]] = parts[1]
 
-print("Starting Gadget Set Analyzer")
+# Validate the target architecture.
+architecture = args.architecture.lower()
 
+if architecture not in ["x86-64", "aarch64"]:
+    parser.error(f"unknown architecture '{architecture}' is neither 'x86-64' nor 'aarch64'")
+
+print("Starting Gadget Set Analyzer")
 # Create Gadget sets for original
 print("Analyzing original package [" + args.original_name + "] located at: " + args.original)
-original = GadgetSet(args.original_name, args.original)
+
+if architecture == "x86-64":
+    original = GadgetSet(args.original_name, args.original)
+else:
+    original = ArmGadgetSet(args.original_name, args.original)
 
 try:
     if args.result_folder_name is None:
@@ -96,7 +107,11 @@ for key in variants_dict.keys():
     filepath = variants_dict.get(key)
     print("Analyzing variant package [" + key + "] located at: " + filepath)
 
-    variant = GadgetSet(key, filepath)
+    if architecture == "x86-64":
+        variant = GadgetSet(key, filepath)
+    else:
+        variant = ArmGadgetSet(key, filepath)
+
     stat = GadgetStats(original, variant)
 
     # Output file 7 variant lines

@@ -25,23 +25,6 @@ class Instruction(object):
                          ["r14", "r14d", "r14w", "r14b"],   # 14
                          ["r15", "r15d", "r15w", "r15b"]]   # 15
 
-    word_register_families = [["rax", "eax", "ax"],     # 0
-                              ["rbx", "ebx", "bx"],     # 1
-                              ["rcx", "ecx", "cx"],     # 2
-                              ["rdx", "edx", "dx"],     # 3
-                              ["rsi", "esi", "si"],     # 4
-                              ["rdi", "edi", "di"],     # 5
-                              ["rbp", "ebp", "bp"],     # 6
-                              ["rsp", "esp", "sp"],     # 7
-                              ["r8", "r8d", "r8w"],     # 8
-                              ["r9", "r9d", "r9w"],     # 9
-                              ["r10", "r10d", "r10w"],  # 10
-                              ["r11", "r11d", "r11w"],  # 11
-                              ["r12", "r12d", "r12w"],  # 12
-                              ["r13", "r13d", "r13w"],  # 13
-                              ["r14", "r14d", "r14w"],  # 14
-                              ["r15", "r15d", "r15w"]]  # 15
-
     def __init__(self, raw_instr):
         """
         Gadget constructor
