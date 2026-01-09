@@ -84,6 +84,17 @@ class ArmInstruction(object):
 
         return None
 
+    def modifies_data_register(self):
+        return any([
+            self.is_conditional_set(),
+            self.is_conditional_data_move(),
+            self.is_data_load(),
+            self.is_shift_or_rotate(),
+            self.is_bitwise_operation(),
+            self.is_arithmetic(),
+            self.is_data_move(),
+        ])
+
     def __repr__(self):
         return f"{self.opcode} {', '.join(self.operands)}"
 
@@ -115,8 +126,10 @@ class ArmGadget(object):
             self.check_stack_pointer_operations()
         elif self.gpi in ["br", "b"]:
             self.gadget_type = GadgetType.JOP
+            self.check_branch_target_operations()
         elif self.gpi == "blr":
             self.gadget_type = GadgetType.COP
+            self.check_branch_target_operations()
         else:
             raise RuntimeError(f"unknown gadget-producing instruction encoutered: {self.gpi}")
 
@@ -147,7 +160,7 @@ class ArmGadget(object):
                 self.score += 1.5 if instruction_modifies_rd else 1.0
 
             # There probably more instructions that modify registers, but this should cover most opcodes. 
-            elif instruction.is_arithmetic() or instruction.is_data_move() or instruction.is_bitwise_operation():
+            elif instruction.modifies_data_register():
                 self.score += 1.0 if instruction_modifies_rd else 0.5
 
     def check_memory_writes(self):
@@ -169,6 +182,17 @@ class ArmGadget(object):
             # Note: this is missing one scoring critiera: (+1.0) Gadget has intermediate instruction that pops stack value into RSP/ESP
             # This is because there is no "pop" instruction in Aarch64, any pop would have to be implemented with a series of
             # other instructions.
+
+    def check_branch_target_operations(self):
+        branch_target = self.instructions[-1].get_destination_register()
+
+        for instruction in self.instructions[:-1]:
+            if not instruction.modifies_data_register() or instruction.get_destination_register() != branch_target:
+                continue
+            elif instruction.is_shift_or_rotate():
+                self.score += 3.0
+            else:
+                self.score += 2.0
 
     def is_gpi_only(self):
         return len(self.instructions) == 1
