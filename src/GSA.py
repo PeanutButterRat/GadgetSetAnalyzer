@@ -96,7 +96,7 @@ rate_format = "{:.1%}"
 float_format = "{:.2f}"
 
 # Output File 7: Average Gadget Quality (and count of quality functional gadgets)
-file_7_lines = ["Variant,Number of Quality ROP Gadgets,Average ROP Gadget Quality,Number of Quality JOP Gadgets,Average JOP Gadget Quality,Number of Quality COP Gadgets,Average COP Gadget Quality" + LINE_SEP]
+file_7_lines = ["Variant,# of ROP Gadgets,Avg ROP Quality,# of JOP Gadgets,Avg JOP Quality,# of COP Gadgets,Avg COP Quality" + LINE_SEP]
 orig_quality = f"{original.name},{format(len(original.ROPGadgets))},{format(original.averageROPQuality)},"
 orig_quality += f"{format(len(original.JOPGadgets))},{format(original.averageJOPQuality)},"
 orig_quality += f"{format(len(original.COPGadgets))},{format(original.averageCOPQuality)}" + LINE_SEP
