@@ -96,10 +96,10 @@ rate_format = "{:.1%}"
 float_format = "{:.2f}"
 
 # Output File 7: Average Gadget Quality (and count of quality functional gadgets)
-file_7_lines = ["Variant,# of ROP Gadgets,Avg ROP Quality,# of JOP Gadgets,Avg JOP Quality,# of COP Gadgets,Avg COP Quality" + LINE_SEP]
+file_7_lines = ["Variant,# of ROP Gadgets,Avg ROP Quality,# of JOP Gadgets,Avg JOP Quality,# of COP Gadgets,Avg COP Quality,ROPgadget Chain?" + LINE_SEP]
 orig_quality = f"{original.name},{format(len(original.ROPGadgets))},{format(original.averageROPQuality)},"
 orig_quality += f"{format(len(original.JOPGadgets))},{format(original.averageJOPQuality)},"
-orig_quality += f"{format(len(original.COPGadgets))},{format(original.averageCOPQuality)}" + LINE_SEP
+orig_quality += f"{format(len(original.COPGadgets))},{format(original.averageCOPQuality)},{original.conatinsRopchain}" + LINE_SEP
 file_7_lines.append(orig_quality)
 
 # Iterate through the variants. Scan them to get a gadget set, compare it to the original, add data to output files
@@ -120,7 +120,7 @@ for key in variants_dict.keys():
     stat_quality += f"{format(len(variant.JOPGadgets))} {format(stat.keptQualityJOPCountDiff, difference=True)},"
     stat_quality += f"{format(variant.averageJOPQuality)} {format(stat.averageJOPQualityDiff, difference=True)},"
     stat_quality += f"{format(len(variant.COPGadgets))} {format(stat.keptQualityCOPCountDiff, difference=True)},"
-    stat_quality += f"{format(variant.averageCOPQuality)} {format(stat.averageCOPQualityDiff, difference=True)}{LINE_SEP}"
+    stat_quality += f"{format(variant.averageCOPQuality)} {format(stat.averageCOPQualityDiff, difference=True)},{variant.conatinsRopchain}{LINE_SEP}"
     file_7_lines.append(stat_quality)
 
 # Write file lines to disk.

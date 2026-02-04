@@ -52,9 +52,13 @@ class GadgetSet(object):
         self.averageJOPQuality = 0.0
         self.averageCOPQuality = 0.0
 
+        # Tracks whether or not an automated ropchain can be created for this particular variant
+        self.conatinsRopchain = "No"
+
         # Run ROPgadget to populate total gadget set (includes duplicates and multi-branch gadgets)
         for fp in self.binaries:
             self.parse_gadgets(fp, GadgetSet.runROPgadget(fp, "--all --multibr"))
+            self.test_ropchain(fp)
 
         # Reject unusable gadgets, sort gadgets into their appropriate category sets, score gadgets
         for gadget in self.allGadgets:
@@ -66,6 +70,12 @@ class GadgetSet(object):
             self.averageJOPQuality = self.total_JOP_score / len(self.JOPGadgets)
         if self.total_COP_score != 0.0:
             self.averageCOPQuality = self.total_COP_score / len(self.COPGadgets)
+
+    def test_ropchain(self, filepath):
+        output = self.runROPgadget(filepath, "--ropchain")
+
+        if "- Step 5 -- Build the ROP chain" in output:
+            self.conatinsRopchain = "Yes"
 
     def parse_gadgets(self, filepath, output):
         """
