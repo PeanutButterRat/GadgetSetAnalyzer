@@ -19,9 +19,9 @@ class GadgetStats(object):
         self.variant = variant
         self.name = original.name + " <-> " + variant.name
 
-        self.keptQualityROPCountDiff = len(variant.ROPGadgets) - len(original.ROPGadgets)
-        self.keptQualityJOPCountDiff = len(variant.JOPGadgets) - len(original.JOPGadgets)
-        self.keptQualityCOPCountDiff = len(variant.COPGadgets) - len(original.COPGadgets)
+        self.keptQualityROPCountDiff = len(original.ROPGadgets) - len(variant.ROPGadgets)
+        self.keptQualityJOPCountDiff = len(original.JOPGadgets) - len(variant.JOPGadgets)
+        self.keptQualityCOPCountDiff = len(original.COPGadgets) - len(variant.COPGadgets)
 
         self.averageROPQualityDiff = variant.averageROPQuality - original.averageROPQuality
         self.averageJOPQualityDiff = variant.averageJOPQuality - original.averageJOPQuality
